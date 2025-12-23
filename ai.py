@@ -13,7 +13,7 @@ def load_data():
         with open('config.json', 'r') as f:
             return json.load(f)
     except:
-        return {"api_key": "", "model": "deepseek/deepseek-chat-v3", "owner": "User", "lang": "Indonesian"}
+        return {"api_key": "", "model": "deepseek/deepseek-chat-v3", "owner": "Diki", "lang": "Indonesian"}
 
 def save_data(conf):
     with open('config.json', 'w') as f:
@@ -24,7 +24,7 @@ def get_system_prompt():
         with open('prompt.txt', 'r') as s:
             return s.read()
     except:
-        return "Kamu adalah OXYLUS-AI."
+        return "Kamu adalah OXYLUS-AI, asisten frontal."
 
 def typewriter(teks):
     for char in teks:
@@ -54,11 +54,31 @@ def chat_engine(pesan, history, conf):
         response = requests.post(url, headers=headers, json={"model": conf['model'], "messages": messages})
         return response.json()['choices'][0]['message']['content']
     except:
-        return "Gagal konek! Pastikan API Key benar dan ada kuota."
+        return "Gagal konek! Pastikan API Key lo bener."
+
+def start_chat(conf):
+    banner()
+    print(Fore.YELLOW + "[ Chat Session Active ]")
+    print(Fore.WHITE + "Ketik 'menu' untuk balik ke menu atau 'exit' untuk keluar\n")
+    history = []
+    while True:
+        user_input = input(Fore.CYAN + f"[{conf['owner']}@oxylus]~# " + Style.RESET_ALL)
+        if user_input.lower() == 'menu': break
+        if user_input.lower() == 'exit': exit()
+        
+        print(Fore.YELLOW + "Oxylus is thinking...")
+        result = chat_engine(user_input, history, conf)
+        
+        print(Fore.WHITE + "\n[OXYLUS-AI]: ", end="")
+        typewriter(result)
+        print()
+        
+        history.append({"role": "user", "content": user_input})
+        history.append({"role": "assistant", "content": result})
 
 def main_menu():
-    conf = load_data()
     while True:
+        conf = load_data()
         banner()
         print(Fore.YELLOW + "[ Main Menu ]")
         print(f"1. Language: {Fore.GREEN}{conf.get('lang', 'Indonesian')}")
@@ -76,78 +96,22 @@ def main_menu():
             conf['model'] = input("Masukkan Nama Model: ")
             save_data(conf)
         elif pilih == '3':
-            conf['api_key'] = input("Paste API Key OpenRouter lo: ")
+            key = input("Paste API Key OpenRouter lo: ")
+            conf['api_key'] = key
             save_data(conf)
         elif pilih == '4':
-            if not conf['api_key'] or "MASUKKAN" in conf['api_key']:
-                print(Fore.RED + "\nIsi API Key dulu di menu nomor 3!")
+            if not conf['api_key'] or "sk-or" not in conf['api_key']:
+                print(Fore.RED + "\nAPI Key belom lo pasang atau salah!")
                 time.sleep(2)
                 continue
             start_chat(conf)
         elif pilih == '5':
-            print(Fore.RED + "Exiting...")
+            print(Fore.RED + "Cabut...")
             break
-
-def start_chat(conf):
-    banner()
-    print(Fore.YELLOW + f"[ Chat Session ]")
-    print(Fore.WHITE + f"Model: {conf['model']}")
-    print(Fore.WHITE + "Type 'menu' to return or 'exit' to quit\n")
-    history = []
-    while True:
-        user_input = input(Fore.CYAN + f"[{conf['owner']}@oxylus]~# " + Style.RESET_ALL)
-        
-        if user_input.lower() == 'menu': break
-        if user_input.lower() == 'exit': exit()
-        
-        print(Fore.YELLOW + "Oxylus is thinking...")
-        result = chat_engine(user_input, history, conf)
-        
-        print(Fore.WHITE + "\n[OXYLUS-AI]: ", end="")
-        typewriter(result)
-        print()
-        
-        history.append({"role": "user", "content": user_input})
-        history.append({"role": "assistant", "content": result})
+        else:
+            print("Pilihan kagak ada!")
+            time.sleep(1)
 
 if __name__ == "__main__":
     main_menu()
-        if pilih == '1':
-            conf['lang'] = input("Masukkan Bahasa (ex: Indonesian/English): ")
-            save_data(conf)
-        elif pilih == '2':
-            print("\nContoh Model: deepseek/deepseek-chat-v3, google/gemini-pro-1.5")
-            conf['model'] = input("Masukkan Nama Model: ")
-            save_data(conf)
-        elif pilih == '3':
-            conf['api_key'] = input("Paste API Key OpenRouter lo: ")
-            save_data(conf)
-        elif pilih == '4':
-            if not conf['api_key']:
-                print(Fore.RED + "\nIsi API Key dulu di menu nomor 3!")
-                input("\nTekan Enter...")
-                continue
-            start_chat(conf)
-        elif pilih == '5':
-            print(Fore.RED + "Exiting...")
-            break
-
-def start_chat(conf):
-    banner()
-    print(Fore.YELLOW + "[ Chat Session ]")
-    print(Fore.WHITE + "Type 'menu' to return or 'exit' to quit\n")
-    history = []
-    while True:
-        user_input = input(Fore.CYAN + f"[{conf['owner']}@oxylus]~# " + Style.RESET_ALL)
-        if user_input.lower() == 'menu': break
-        if user_input.lower() == 'exit': exit()
         
-        print(Fore.YELLOW + "Oxylus is thinking...")
-        result = chat_engine(user_input, history, conf)
-        print(Fore.WHITE + f"\n[OXYLUS-AI]: {result}\n")
-        
-        history.append({"role": "user", "content": user_input})
-        history.append({"role": "assistant", "content": result})
-
-if __name__ == "__main__":
-    main_menu()
