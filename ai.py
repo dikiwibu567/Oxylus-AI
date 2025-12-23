@@ -10,8 +10,9 @@ def load_data():
     try:
         with open('config.json', 'r') as f:
             conf = json.load(f)
-        with open('system.txt', 'r') as s:
-            sys_prompt = s.read()
+        with open('prompt.txt', 'r') as s:  # Pastikan pakai prompt.txt sesuai di GitHub lo
+    sys_prompt = s.read()
+
         return conf, sys_prompt
     except FileNotFoundError:
         print(Fore.RED + "Error: File config.json atau system.txt tidak ditemukan!")
